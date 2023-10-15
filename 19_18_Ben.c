@@ -1,134 +1,124 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include<stdio.h>
+#include<stdlib.h>
 
-// Structure to represent a stack of integers
-struct Stack {
-    int data;
-    struct Stack* next;
+int choice, x;
+
+//strcture of a node of LL
+struct node
+{
+    struct node *next;
+    int info;
 };
 
-// Function to create a new stack node
-struct Stack* createNode(int data) {
-    struct Stack* newNode = (struct Stack*)malloc(sizeof(struct Stack));
-    if (newNode == NULL) {
-        printf("Memory allocation failed.\n");
-        exit(1);
+//to create memory for a node
+struct node* getnode()
+{
+    return ((struct node*)malloc(sizeof(struct node)));
+}
+
+//to free a node
+void freenode(struct node* p)
+{
+    free(p);
+}
+
+//initializing the LL
+struct node *list = NULL;
+
+//to insert an element at end of LL
+void enQueue(int x)
+{
+    if(list==NULL)
+    {
+        //if empty
+        struct node *newnode;
+        newnode=getnode();
+        newnode->info=x;
+        newnode->next=list;
+        list=newnode;
+        return;
     }
-    newNode->data = data;
-    newNode->next = NULL;
-    return newNode;
-}
-
-// Function to push an element onto the stack
-void push(struct Stack** top, int data) {
-    struct Stack* newNode = createNode(data);
-    newNode->next = *top;
-    *top = newNode;
-}
-
-// Function to pop an element from the stack
-int pop(struct Stack** top) {
-    if (*top == NULL) {
-        printf("Stack is empty. Cannot pop.\n");
-        exit(1);
+    //attach node at the end
+    struct node *nn, *temp;
+    nn= getnode();
+    nn->info = x;
+    nn->next =NULL;
+    temp = list;
+    while(temp->next!=NULL)
+    {
+        temp= temp->next;
     }
-    struct Stack* temp = *top;
-    int data = temp->data;
-    *top = temp->next;
-    free(temp);
-    return data;
+    temp->next = nn;
 }
 
-// Function to evaluate an arithmetic expression
-int evaluateExpression(const char* expression) {
-    struct Stack* operandStack = NULL;
-    struct Stack* operatorStack = NULL;
+//to delete first node
+void deQueue()
+{
+    if(list==NULL)
+    {
+        //if empty
+        printf("Empty LL");
+        return;
+    }
+    struct node *temp;
+    temp =list;
+    list = list->next;
+    freenode(temp);
+}
 
-    for (int i = 0; expression[i]; i++) {
-        if (isspace(expression[i])) {
-            continue; // Skip spaces
-        } else if (isdigit(expression[i])) {
-            // Read the entire number and push it onto the operand stack
-            int operand = 0;
-            while (isdigit(expression[i])) {
-                operand = operand * 10 + (expression[i] - '0');
-                i++;
-            }
-            i--; // Move back one position to account for the non-digit character
-            push(&operandStack, operand);
-        } else if (expression[i] == '(') {
-            push(&operatorStack, expression[i]);
-        } else if (expression[i] == ')') {
-            while (operatorStack != NULL && operatorStack->data != '(') {
-                int operand2 = pop(&operandStack);
-                int operand1 = pop(&operandStack);
-                char op = pop(&operatorStack);
-                if (op == '+') {
-                    push(&operandStack, operand1 + operand2);
-                } else if (op == '-') {
-                    push(&operandStack, operand1 - operand2);
-                } else if (op == '*') {
-                    push(&operandStack, operand1 * operand2);
-                } else if (op == '/') {
-                    push(&operandStack, operand1 / operand2);
-                }
-            }
-            if (operatorStack != NULL && operatorStack->data == '(') {
-                pop(&operatorStack); // Pop the '(' from the operator stack
-            }
-        } else if (expression[i] == '+' || expression[i] == '-' ||
-                   expression[i] == '*' || expression[i] == '/') {
-            // Process operators
-            while (operatorStack != NULL &&
-                   (expression[i] == '+' || expression[i] == '-') &&
-                   (operatorStack->data == '*' || operatorStack->data == '/')) {
-                int operand2 = pop(&operandStack);
-                int operand1 = pop(&operandStack);
-                char op = pop(&operatorStack);
-                if (op == '+') {
-                    push(&operandStack, operand1 + operand2);
-                } else if (op == '-') {
-                    push(&operandStack, operand1 - operand2);
-                } else if (op == '*') {
-                    push(&operandStack, operand1 * operand2);
-                } else if (op == '/') {
-                    push(&operandStack, operand1 / operand2);
-                }
-            }
-            push(&operatorStack, expression[i]);
-        } else {
-            printf("Invalid character in expression: %c\n", expression[i]);
-            exit(1);
+//to display LL
+void display()
+{
+    if(list==NULL)
+    {
+        //if empty
+        printf("Empty LL");
+        return;
+    }
+    struct node *temp;
+    temp=list;
+    while(temp->next!=NULL)
+    {
+        printf("%d\n", temp->info);
+        temp=temp->next;
+    }
+    printf("%d", temp->info);
+}
+void main()
+{
+
+    /*calling the everlasting choices*/
+    while(choice!=4)
+    {
+        /*description of menu bar*/
+        printf("\n\n\n\n-----These are the menu panel-----");
+        printf("\n1. Enter in Queue");
+        printf("\n2. Delete from Queue");
+        printf("\n3. Traverse");
+        printf("\n4. Exit");
+        printf("\nenter the option no.: ");
+        scanf("%d", &choice);
+
+        /*switch on entered choice*/
+        switch(choice)
+        {
+            /*case-wise calling functions*/
+            case 1: 
+            printf("enter the number you want to add in the Queue: ");
+            scanf("%d", &x);
+            enQueue(x);
+                break;
+            case 2: deQueue();
+                break;
+            case 3: display();
+                break;
+            case 4:
+                break;
+            default:
+                printf("incorrect choice");
         }
-    }
+    }/*end of while*/
 
-    while (operatorStack != NULL) {
-        int operand2 = pop(&operandStack);
-        int operand1 = pop(&operandStack);
-        char op = pop(&operatorStack);
-        if (op == '+') {
-            push(&operandStack, operand1 + operand2);
-        } else if (op == '-') {
-            push(&operandStack, operand1 - operand2);
-        } else if (op == '*') {
-            push(&operandStack, operand1 * operand2);
-        } else if (op == '/') {
-            push(&operandStack, operand1 / operand2);
-        }
-    }
-
-    if (operandStack == NULL) {
-        printf("Invalid expression.\n");
-        exit(1);
-    }
-
-    return operandStack->data;
-}
-
-int main() {
-    const char* expression = "3 + 5 * ( 4 - 2 )";
-    int result = evaluateExpression(expression);
-    printf("Result of expression: %s = %d\n", expression, result);
-    return 0;
+    /*code execution completed*/
+    printf("You got exit\n");
 }
